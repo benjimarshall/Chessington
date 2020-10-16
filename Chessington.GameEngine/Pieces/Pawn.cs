@@ -18,7 +18,7 @@ namespace Chessington.GameEngine.Pieces
             var direction = Player == Player.Black ? 1 : -1;
 
             // Normal advancing
-            availableLocations.Add(new Square(location.Row + direction*1, location.Col));
+            availableLocations.Add(new Square(location.Row + direction * 1, location.Col));
 
             // Two places on first move
             if (!hasMoved)
