@@ -89,5 +89,10 @@ namespace Chessington.GameEngine
             var handler = CurrentPlayerChanged;
             if (handler != null) handler(player);
         }
+
+        public static bool SquareIsOnBoard(Square square)
+        {
+            return 0 <= square.Col && square.Col <= 7 && 0 <= square.Row && square.Row <= 7;
+        }
     }
 }

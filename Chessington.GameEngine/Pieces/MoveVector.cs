@@ -34,6 +34,38 @@ namespace Chessington.GameEngine.Pieces
             return availableLocations;
         }
 
+        public IEnumerable<Square> GetMovesInDirection(Board board, Square start)
+        {
+            var availableMoves = new List<Square>();
+            var player = board.CurrentPlayer;
+
+            for (var i = 1; i < 8; i++)
+            {
+                var square = new Square(start.Row + RowChange * i, start.Col + ColChange * i);
+
+                // If square doesn't exist, stop moving that way
+                if (!Board.SquareIsOnBoard(square))
+                {
+                    break;
+                }
+                var occupier = board.GetPiece(square);
+
+                // If we can move onto that square, add it to list
+                if (occupier == null || player != occupier.Player)
+                {
+                    availableMoves.Add(square);
+                }
+
+                // If that square was occupied, then we won't be able to move past it
+                if (occupier != null)
+                {
+                    break;
+                }
+            }
+
+            return availableMoves;
+        }
+
         private static IEnumerable<Square> RemoveInvalidSquares(IEnumerable<Square> squares)
         {
             return squares.Where(square =>
