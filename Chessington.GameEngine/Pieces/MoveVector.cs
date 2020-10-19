@@ -28,8 +28,8 @@ namespace Chessington.GameEngine.Pieces
 
             var possibleMovesInBoard = RemoveInvalidSquares(possibleMoves);
 
-            // Remove current location
-            var availableLocations = possibleMovesInBoard.Where(square => square != location);
+            // Remove locations containing friendly pieces
+            var availableLocations = RemoveFriendlyOccupiedSquares(possibleMovesInBoard, board);
 
             return availableLocations;
         }
@@ -70,6 +70,15 @@ namespace Chessington.GameEngine.Pieces
         {
             return squares.Where(square =>
                 0 <= square.Col && square.Col <= 7 && 0 <= square.Row && square.Row <= 7
+            );
+        }
+
+        private static IEnumerable<Square> RemoveFriendlyOccupiedSquares(IEnumerable<Square> squares, Board board)
+        {
+            var player = board.CurrentPlayer;
+
+            return squares.Where(square =>
+                !board.SquareIsOccupied(square) || board.GetPiece(square).Player != player
             );
         }
     }
