@@ -29,9 +29,7 @@ namespace Chessington.GameEngine.Pieces
             var possibleMovesInBoard = RemoveInvalidSquares(possibleMoves);
 
             // Remove locations containing friendly pieces
-            var availableLocations = RemoveFriendlyOccupiedSquares(possibleMovesInBoard, board);
-
-            return availableLocations;
+            return RemoveFriendlyOccupiedSquares(possibleMovesInBoard, board);
         }
 
         public IEnumerable<Square> GetMovesInDirection(Board board, Square start)
