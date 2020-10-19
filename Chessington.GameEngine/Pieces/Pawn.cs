@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Chessington.GameEngine.Pieces
@@ -13,6 +14,7 @@ namespace Chessington.GameEngine.Pieces
     {
         private bool hasMoved = false;
         private int verticalDirection => Player == Player. Black ? 1 : -1;
+        private bool hasJustDoubleMoved = false;
 
         public Pawn(Player player)
             : base(player) { }
@@ -43,40 +45,60 @@ namespace Chessington.GameEngine.Pieces
                 availableLocations.Add(twoSquaresAhead);
             }
 
-            // Pawns can take pieces diagonally
-            var diagonalLeft = GetDiagonalMove(board, location, HoriztonalDirection.Left);
-            if (diagonalLeft != null) availableLocations.Add(diagonalLeft.Value);
-
-
-            var diagonalRight = GetDiagonalMove(board, location, HoriztonalDirection.Right);
-            if (diagonalRight != null) availableLocations.Add(diagonalRight.Value);
-
-            return availableLocations;
+            // Pawns can take pieces diagonally, and en passant
+            return availableLocations
+                .Concat(GetDiagonalMoves(board, location, -1))
+                .Concat(GetDiagonalMoves(board, location, 1));
         }
 
-        private Square? GetDiagonalMove(Board board, Square location, HoriztonalDirection horizontalDirection)
+        private IEnumerable<Square> GetDiagonalMoves(Board board, Square location, int horizontalDirection)
         {
+            var availableLocations = new List<Square>();
+
             var diagonal = new Square(
                 location.Row + verticalDirection,
                 location.Col + (int)horizontalDirection
             );
 
             if (Board.SquareIsOnBoard(diagonal)
-                && board.SquareIsOccupied(diagonal)
-                && board.GetPiece(diagonal).Player != Player)
+                   && board.SquareIsOccupied(diagonal)
+                   && board.GetPiece(diagonal).Player != Player)
             {
-                return diagonal;
+                availableLocations.Add(diagonal);
             }
-            else
+
+            // En passant
+            var side = new Square(location.Row, location.Col + horizontalDirection);
+            if (Board.SquareIsOnBoard(side) && !board.SquareIsOccupied(diagonal) &&
+                board.SquareIsOccupied(side) && board.GetPiece(side).CanBeEnPassantTaken(Player))
             {
-                return null;
+                availableLocations.Add(diagonal);
             }
+
+            return availableLocations;
         }
 
         public override void MoveTo(Board board, Square newSquare)
         {
+            hasJustDoubleMoved = Math.Abs(board.FindPiece(this).Row - newSquare.Row) == 2;
+
+            // En passant
+            var location = board.FindPiece(this);
+            var squareBehind = new Square(newSquare.Row - verticalDirection, newSquare.Col);
+            if (location.Col != newSquare.Col
+                && board.GetPiece(newSquare) == null
+                && board.SquareIsOccupied(squareBehind))
+            {
+                board.CapturePieceOnSquare(squareBehind);
+            }
+
             base.MoveTo(board, newSquare);
             hasMoved = true;
+        }
+
+        public override bool CanBeEnPassantTaken(Player player)
+        {
+            return hasJustDoubleMoved && player != Player;
         }
     }
 }

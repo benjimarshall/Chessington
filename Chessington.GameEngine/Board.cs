@@ -94,5 +94,13 @@ namespace Chessington.GameEngine
         {
             return 0 <= square.Col && square.Col <= 7 && 0 <= square.Row && square.Row <= 7;
         }
+
+        public void CapturePieceOnSquare(Square square)
+        {
+            var piece = GetPiece(square);
+            OnPieceCaptured(piece);
+
+            board[square.Row, square.Col] = null;
+        }
     }
 }
