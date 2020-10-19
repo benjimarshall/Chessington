@@ -37,6 +37,21 @@ namespace Chessington.GameEngine.Pieces
                 availableLocations.Add(twoSquaresAhead);
             }
 
+            // Pawns can take pieces diagonally
+            var diagonalLeft = new Square(location.Row + direction*1, location.Col - 1);
+            if (diagonalLeft.Col >= 0 && board.SquareIsOccupied(diagonalLeft) &&
+                board.GetPiece(diagonalLeft).Player != Player)
+            {
+                availableLocations.Add(diagonalLeft);
+            }
+
+            var diagonalRight = new Square(location.Row + direction * 1, location.Col + 1);
+            if (diagonalRight.Col <= 7 && board.SquareIsOccupied(diagonalRight) &&
+                board.GetPiece(diagonalRight).Player != Player)
+            {
+                availableLocations.Add(diagonalRight);
+            }
+
             return availableLocations;
         }
 
