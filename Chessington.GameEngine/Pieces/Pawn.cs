@@ -20,8 +20,10 @@ namespace Chessington.GameEngine.Pieces
             var oneSquareAhead = new Square(location.Row + direction * 1, location.Col);
             var twoSquaresAhead = new Square(location.Row + direction * 2, location.Col);
 
-            // Pawn can't move at all if a piece is directly in front
-            if (board.SquareIsOccupied(oneSquareAhead))
+            // Pawn can't move at all if at end of the board, or if a piece is directly in front
+            if (location.Row == 0 && Player == Player.White
+                || location.Row == 7 && Player == Player.Black
+                || board.SquareIsOccupied(oneSquareAhead))
             {
                 return availableLocations;
             }
