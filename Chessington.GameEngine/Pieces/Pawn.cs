@@ -73,7 +73,7 @@ namespace Chessington.GameEngine.Pieces
             }
         }
 
-        public new void MoveTo(Board board, Square newSquare)
+        public override void MoveTo(Board board, Square newSquare)
         {
             base.MoveTo(board, newSquare);
             hasMoved = true;
