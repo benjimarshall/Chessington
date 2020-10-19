@@ -16,15 +16,17 @@ namespace Chessington.GameEngine.Pieces
             var twoMinusTwo = new List<int>(new[] { 2, -2 });
 
             // Make set of possible jumps: (+-2, +- 1) u (+-1, +-2)
-            var colChangeJumps = oneMinusOne.SelectMany(
-                x => twoMinusTwo,
-                (rowChange, colChange) => new MoveVector(rowChange, colChange)
-            );
-            var rowChangeJumps = twoMinusTwo.SelectMany(
-                x => oneMinusOne,
-                (rowChange, colChange) => new MoveVector(rowChange, colChange)
-            );
-            var jumps = rowChangeJumps.Union(colChangeJumps);
+            var jumps = new List<MoveVector>(new []
+            {
+                new MoveVector(-2, -1),
+                new MoveVector(-2, 1),
+                new MoveVector(2, -1),
+                new MoveVector(2, 1),
+                new MoveVector(-1, -2),
+                new MoveVector(-1, 2),
+                new MoveVector(1, -2),
+                new MoveVector(1, 2),
+            });
 
             return MoveVector.FindAvailableMovesFromVectors(jumps, board, currentSquare);
         }
