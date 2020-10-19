@@ -28,38 +28,29 @@ namespace Chessington.GameEngine.Pieces
             var zeroes = Enumerable.Repeat(0, 15);
             var minusSevenToSeven = Enumerable.Range(-7, 15);
 
-            var moveVectors = zeroes.Zip(minusSevenToSeven, (x, y) => new MoveVector(x,y));
-            moveVectors = moveVectors.Union(minusSevenToSeven.Zip(zeroes, (x, y) => new MoveVector(x, y)));
+            var xChangedMoveVectors = minusSevenToSeven.Select(x => new MoveVector(x, 0));
+            var yChangedMoveVectors = minusSevenToSeven.Select(y => new MoveVector(0, y));
+            var lateralMoveVectors = xChangedMoveVectors.Concat(yChangedMoveVectors);
 
-            return MoveVector.FindAvailableMovesFromVectors(moveVectors, board, currentSquare);
+            return MoveVector.FindAvailableMovesFromVectors(lateralMoveVectors, board, currentSquare);
         }
 
         protected IEnumerable<Square> GetAvailableDiagonalMoves(Board board)
         {
             var currentSquare = board.FindPiece(this);
 
-            // Produce a zipped set of diagonal directions (South West, South East, North West, North East)
-            var diagonalDirections = new List<MoveVector>(new[]
-            {
-                new MoveVector(-1, -1),
-                new MoveVector(-1, 1),
-                new MoveVector(1, -1),
-                new MoveVector(1, 1)
-            });
+            // Produce a set of diagonal move vectors, from 1 to 7 places diagonally in each direction
+            var oneToSeven = Enumerable.Range(1, 7);
+            var bothPositiveDiagonal = oneToSeven.Select(x => new MoveVector(x, x));
+            var xNegativeDiagonal = oneToSeven.Select(x => new MoveVector(-x, x));
+            var yNegativeDiagonal = oneToSeven.Select(x => new MoveVector(x, -x));
+            var bothNegativeDiagonal = oneToSeven.Select(x => new MoveVector(-x, -x));
+            var allDiagonalMoves = bothPositiveDiagonal
+                .Concat(xNegativeDiagonal)
+                .Concat(yNegativeDiagonal)
+                .Concat(bothNegativeDiagonal);
 
-            // Send diagonal lines out 8 squares in each diagonal direction
-            var moveVectors = diagonalDirections.Select(vector =>
-            {
-                return Enumerable.Range(1, 7).Select(i => new MoveVector(
-                    vector.RowChange * i,
-                    vector.ColChange * i)
-                );
-            });
-
-            // Flatten from four lists of lists of squares to one list
-            var moveVectorsFlattened = moveVectors.SelectMany(x => x).ToList();
-
-            return MoveVector.FindAvailableMovesFromVectors(moveVectorsFlattened, board, currentSquare);
+            return MoveVector.FindAvailableMovesFromVectors(allDiagonalMoves, board, currentSquare);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Chessington.GameEngine.Pieces
             var lateralMoves = GetAvailableLateralMoves(board);
             var diagonalMoves = GetAvailableDiagonalMoves(board);
 
-            return lateralMoves.Union(diagonalMoves);
+            return lateralMoves.Concat(diagonalMoves);
         }
     }
 }
