@@ -3,9 +3,16 @@ using System.Linq;
 
 namespace Chessington.GameEngine.Pieces
 {
+    enum HoriztonalDirection : int
+    {
+        Left = -1,
+        Right = 1
+    }
+
     public class Pawn : Piece
     {
         private bool hasMoved = false;
+        private int verticalDirection => Player == Player. Black ? 1 : -1;
 
         public Pawn(Player player)
             : base(player) { }
@@ -16,9 +23,8 @@ namespace Chessington.GameEngine.Pieces
 
             var availableLocations = new List<Square>();
 
-            var direction = Player == Player.Black ? 1 : -1;
-            var oneSquareAhead = new Square(location.Row + direction * 1, location.Col);
-            var twoSquaresAhead = new Square(location.Row + direction * 2, location.Col);
+            var oneSquareAhead = new Square(location.Row + verticalDirection * 1, location.Col);
+            var twoSquaresAhead = new Square(location.Row + verticalDirection * 2, location.Col);
 
             // Pawn can't move at all if at end of the board, or if a piece is directly in front
             if (location.Row == 0 && Player == Player.White
@@ -38,24 +44,26 @@ namespace Chessington.GameEngine.Pieces
             }
 
             // Pawns can take pieces diagonally
-            var diagonalLeft = GetDiagonalMoves(board, -1);
+            var diagonalLeft = GetDiagonalMove(board, location, HoriztonalDirection.Left);
             if (diagonalLeft != null) availableLocations.Add(diagonalLeft.Value);
 
 
-            var diagonalRight = GetDiagonalMoves(board, 1);
+            var diagonalRight = GetDiagonalMove(board, location, HoriztonalDirection.Right);
             if (diagonalRight != null) availableLocations.Add(diagonalRight.Value);
 
             return availableLocations;
         }
 
-        private Square? GetDiagonalMoves(Board board, int horizontalDirection)
+        private Square? GetDiagonalMove(Board board, Square location, HoriztonalDirection horizontalDirection)
         {
-            var location = board.FindPiece(this);
-            var verticalDirection = Player == Player.Black ? 1 : -1;
+            var diagonal = new Square(
+                location.Row + verticalDirection,
+                location.Col + (int)horizontalDirection
+            );
 
-            var diagonal = new Square(location.Row + verticalDirection, location.Col + horizontalDirection);
-            if (Board.SquareIsOnBoard(diagonal) && board.SquareIsOccupied(diagonal) &&
-                board.GetPiece(diagonal).Player != Player)
+            if (Board.SquareIsOnBoard(diagonal)
+                && board.SquareIsOccupied(diagonal)
+                && board.GetPiece(diagonal).Player != Player)
             {
                 return diagonal;
             }
