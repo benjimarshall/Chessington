@@ -65,6 +65,6 @@ namespace Chessington.GameEngine.Pieces
             return availableMoves;
         }
 
-        public virtual bool CanBeEnPassantTaken(Player player) => false;
+        public virtual bool CanBeTakenEnPassant(Player player) => false;
     }
 }

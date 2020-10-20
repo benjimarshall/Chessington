@@ -47,11 +47,11 @@ namespace Chessington.GameEngine.Pieces
 
             // Pawns can take pieces diagonally, and en passant
             return availableLocations
-                .Concat(GetDiagonalMoves(board, location, -1))
-                .Concat(GetDiagonalMoves(board, location, 1));
+                .Concat(GetDiagonalMoves(board, location, HoriztonalDirection.Left))
+                .Concat(GetDiagonalMoves(board, location, HoriztonalDirection.Right));
         }
 
-        private IEnumerable<Square> GetDiagonalMoves(Board board, Square location, int horizontalDirection)
+        private IEnumerable<Square> GetDiagonalMoves(Board board, Square location, HoriztonalDirection horizontalDirection)
         {
             var availableLocations = new List<Square>();
 
@@ -68,9 +68,11 @@ namespace Chessington.GameEngine.Pieces
             }
 
             // En passant
-            var side = new Square(location.Row, location.Col + horizontalDirection);
-            if (Board.SquareIsOnBoard(side) && !board.SquareIsOccupied(diagonal) &&
-                board.SquareIsOccupied(side) && board.GetPiece(side).CanBeEnPassantTaken(Player))
+            var side = Square.At(location.Row, location.Col + (int)horizontalDirection);
+            if (Board.SquareIsOnBoard(side)
+                && !board.SquareIsOccupied(diagonal)
+                && board.SquareIsOccupied(side)
+                && board.GetPiece(side).CanBeTakenEnPassant(Player))
             {
                 availableLocations.Add(diagonal);
             }
@@ -80,12 +82,12 @@ namespace Chessington.GameEngine.Pieces
 
         public override void MoveTo(Board board, Square newSquare)
         {
-            hasJustDoubleMoved = Math.Abs(board.FindPiece(this).Row - newSquare.Row) == 2;
+            var currentSquare = board.FindPiece(this);
+            hasJustDoubleMoved = Math.Abs(currentSquare.Row - newSquare.Row) == 2;
 
             // En passant
-            var location = board.FindPiece(this);
             var squareBehind = new Square(newSquare.Row - verticalDirection, newSquare.Col);
-            if (location.Col != newSquare.Col
+            if (currentSquare.Col != newSquare.Col
                 && board.GetPiece(newSquare) == null
                 && board.SquareIsOccupied(squareBehind))
             {
@@ -96,7 +98,7 @@ namespace Chessington.GameEngine.Pieces
             hasMoved = true;
         }
 
-        public override bool CanBeEnPassantTaken(Player player)
+        public override bool CanBeTakenEnPassant(Player player)
         {
             return hasJustDoubleMoved && player != Player;
         }
