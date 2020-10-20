@@ -201,5 +201,85 @@ namespace Chessington.GameEngine.Tests.Pieces
             moves.Should().NotContain(Square.At(6, 2));
             moves.Should().NotContain(Square.At(6, 4));
         }
+
+        [Test]
+        public void WhitePawns_CanEnPassant()
+        {
+            var board = new Board(Player.Black);
+            var whitePawn = new Pawn(Player.White);
+            board.AddPiece(new Square(3, 4), whitePawn);
+
+            var blackPawn = new Pawn(Player.Black);
+            board.AddPiece(new Square(1, 5), blackPawn);
+
+            blackPawn.MoveTo(board, new Square(3, 5));
+
+            whitePawn.GetAvailableMoves(board).Should().Contain(
+                new Square(2, 5),
+                "White pawn should be able to en passant"
+            );
+
+            whitePawn.MoveTo(board, new Square(2, 5));
+
+            board.GetPiece(new Square(3, 5)).Should().BeNull("Black pawn should be taken during en passant");
+        }
+
+        [Test]
+        public void BlackPawns_CanEnPassant()
+        {
+            var board = new Board(Player.White);
+            var blackPawn = new Pawn(Player.Black);
+            board.AddPiece(new Square(4, 6), blackPawn);
+
+            var whitePawn = new Pawn(Player.White);
+            board.AddPiece(new Square(6, 7), whitePawn);
+
+            whitePawn.MoveTo(board, new Square(4, 7));
+
+            blackPawn.GetAvailableMoves(board).Should().Contain(
+                new Square(5, 7),
+                "Black pawn should be able to en passant"
+            );
+
+            blackPawn.MoveTo(board, new Square(5, 7));
+
+            board.GetPiece(new Square(4, 7)).Should().BeNull("White pawn should be taken during en passant");
+        }
+
+        [Test]
+        public void WhitePawns_CannotEnPassant_IfNotAfterDoubleMove()
+        {
+            var board = new Board(Player.Black);
+            var whitePawn = new Pawn(Player.White);
+            board.AddPiece(new Square(4, 4), whitePawn);
+
+            var blackPawn = new Pawn(Player.Black);
+            board.AddPiece(new Square(2, 5), blackPawn);
+
+            blackPawn.MoveTo(board, new Square(3, 5));
+
+            whitePawn.GetAvailableMoves(board).Should().NotContain(
+                new Square(2, 5),
+                "White pawn should not be able to en passant if black pawn hasn't double moved"
+            );
+        }
+
+        [Test]
+        public void BlackPawns_CannotEnPassant_IfNotAfterDoubleMove()
+        {
+            var board = new Board(Player.White);
+            var blackPawn = new Pawn(Player.Black);
+            board.AddPiece(new Square(4, 6), blackPawn);
+
+            var whitePawn = new Pawn(Player.White);
+            board.AddPiece(new Square(5, 7), whitePawn);
+
+            whitePawn.MoveTo(board, new Square(4, 7));
+
+            blackPawn.GetAvailableMoves(board).Should().NotContain(
+                new Square(5, 7),
+                "Black pawn should not be able to en passant if white pawn hasn't double moved"
+            );
+        }
     }
 }
